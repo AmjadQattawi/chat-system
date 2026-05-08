@@ -11,5 +11,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleDuplicateBooking(DuplicateResourceException ex){
         return ResponseEntity.status(409).body(ex.getMessage());
     }
+    @ExceptionHandler(RoomNotFoundException.class)
+    public ResponseEntity<String> handleRoomNotFound(RoomNotFoundException ex){
+        return ResponseEntity.status(4040).body(ex.getMessage());
+    }
 
 }
