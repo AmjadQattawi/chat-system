@@ -7,384 +7,145 @@
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
         :root {
-          --bg: #0f0f13;
-          --surface: #17171e;
-          --surface2: #1e1e28;
-          --border: #2a2a38;
-          --accent: #6c63ff;
-          --accent-glow: rgba(108,99,255,0.18);
-          --accent-dim: #4a44b5;
-          --text: #e8e8f0;
-          --text-muted: #7a7a9a;
-          --text-faint: #3a3a55;
-          --online: #3dd68c;
-          --msg-out: #252535;
-          --msg-in: #1e1e2b;
-          --radius: 14px;
-          --radius-sm: 8px;
+          --bg: #0f0f13; --surface: #17171e; --surface2: #1e1e28;
+          --border: #2a2a38; --accent: #6c63ff; --accent-glow: rgba(108,99,255,0.18);
+          --accent-dim: #4a44b5; --text: #e8e8f0; --text-muted: #7a7a9a;
+          --text-faint: #3a3a55; --online: #3dd68c; --radius: 14px; --radius-sm: 8px;
         }
+        body { font-family: 'IBM Plex Sans Arabic', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; overflow: hidden; }
 
-        body {
-          font-family: 'IBM Plex Sans Arabic', sans-serif;
-          background: var(--bg);
-          color: var(--text);
-          height: 100vh;
-          display: flex;
-          overflow: hidden;
-        }
+        /* ─── Auth Screen ─── */
+        #auth-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 100; }
+        .auth-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 2rem; width: 340px; }
+        .auth-title { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+        .auth-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 1.5rem; }
+        .auth-input { width: 100%; padding: 10px 14px; margin-bottom: 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 14px; font-family: inherit; outline: none; transition: border-color .2s; direction: rtl; }
+        .auth-input:focus { border-color: var(--accent); }
+        .auth-input::placeholder { color: var(--text-faint); }
+        .auth-btn { width: 100%; padding: 11px; background: var(--accent); border: none; border-radius: var(--radius-sm); color: #fff; font-size: 14px; font-family: inherit; cursor: pointer; transition: background .2s; margin-top: 4px; }
+        .auth-btn:hover { background: var(--accent-dim); }
+        .auth-toggle { font-size: 13px; color: var(--text-muted); text-align: center; margin-top: 14px; }
+        .auth-toggle span { color: var(--accent); cursor: pointer; }
+        #auth-error { font-size: 12px; min-height: 18px; margin-bottom: 6px; text-align: center; color: #f87171; }
 
         /* ─── Sidebar ─── */
-        #sidebar {
-          width: 300px;
-          flex-shrink: 0;
-          background: var(--surface);
-          border-left: 1px solid var(--border);
-          display: flex;
-          flex-direction: column;
-          height: 100vh;
-        }
-
-        .sidebar-header {
-          padding: 20px 18px 14px;
-          border-bottom: 1px solid var(--border);
-        }
-
-        .app-title {
-          font-size: 18px;
-          font-weight: 600;
-          letter-spacing: -0.3px;
-          margin-bottom: 4px;
-        }
-
-        #status-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 5px;
-          font-size: 11px;
-          color: var(--text-muted);
-        }
-
-        .status-dot {
-          width: 6px; height: 6px;
-          border-radius: 50%;
-          background: var(--text-faint);
-          transition: background .3s;
-        }
+        #sidebar { width: 300px; flex-shrink: 0; background: var(--surface); border-left: 1px solid var(--border); display: flex; flex-direction: column; height: 100vh; }
+        .sidebar-header { padding: 16px 18px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+        .app-title { font-size: 16px; font-weight: 600; }
+        #status-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-faint); transition: background .3s; }
         .status-dot.connected { background: var(--online); box-shadow: 0 0 6px var(--online); }
-
-        /* Create Room */
-        .create-box {
-          padding: 14px;
-          border-bottom: 1px solid var(--border);
-          display: flex;
-          gap: 8px;
-        }
-
-        .create-box input {
-          flex: 1;
-          background: var(--surface2);
-          border: 1px solid var(--border);
-          border-radius: var(--radius-sm);
-          padding: 9px 12px;
-          font-size: 13px;
-          font-family: inherit;
-          color: var(--text);
-          outline: none;
-          transition: border-color .2s;
-          direction: rtl;
-        }
+        .btn-logout { background: none; border: none; cursor: pointer; color: var(--text-faint); font-size: 11px; font-family: inherit; padding: 4px 8px; border-radius: var(--radius-sm); transition: all .15s; }
+        .btn-logout:hover { background: var(--surface2); color: #f87171; }
+        .create-box { padding: 12px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; }
+        .create-box input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 13px; font-family: inherit; color: var(--text); outline: none; transition: border-color .2s; direction: rtl; }
         .create-box input:focus { border-color: var(--accent); }
         .create-box input::placeholder { color: var(--text-faint); }
-
-        .btn-create {
-          background: var(--accent);
-          border: none;
-          border-radius: var(--radius-sm);
-          width: 36px; height: 36px;
-          cursor: pointer;
-          display: flex; align-items: center; justify-content: center;
-          transition: background .2s, transform .15s;
-          flex-shrink: 0;
-        }
+        .btn-create { background: var(--accent); border: none; border-radius: var(--radius-sm); width: 34px; height: 34px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .2s, transform .15s; }
         .btn-create:hover { background: var(--accent-dim); }
         .btn-create:active { transform: scale(0.93); }
-        .btn-create svg { width: 16px; height: 16px; stroke: #fff; }
-
-        /* Rooms List */
-        .rooms-label {
-          padding: 12px 16px 6px;
-          font-size: 10px;
-          font-weight: 600;
-          letter-spacing: 1.2px;
-          color: var(--text-muted);
-          text-transform: uppercase;
-        }
-
-        #rooms-list {
-          flex: 1;
-          overflow-y: auto;
-          padding: 4px 8px;
-        }
+        .btn-create svg { width: 15px; height: 15px; stroke: #fff; }
+        .rooms-label { padding: 10px 16px 5px; font-size: 10px; font-weight: 600; letter-spacing: 1.2px; color: var(--text-muted); text-transform: uppercase; }
+        #rooms-list { flex: 1; overflow-y: auto; padding: 4px 8px; }
         #rooms-list::-webkit-scrollbar { width: 3px; }
         #rooms-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-        .room-item {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 10px 10px;
-          border-radius: var(--radius-sm);
-          cursor: pointer;
-          transition: background .15s;
-          position: relative;
-        }
+        .room-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius-sm); cursor: pointer; transition: background .15s; position: relative; }
         .room-item:hover { background: var(--surface2); }
         .room-item.active { background: var(--accent-glow); }
         .room-item.active .room-name { color: var(--accent); }
-
-        .room-avatar {
-          width: 36px; height: 36px;
-          border-radius: 10px;
-          background: var(--surface2);
-          border: 1px solid var(--border);
-          display: flex; align-items: center; justify-content: center;
-          font-size: 15px;
-          flex-shrink: 0;
-          transition: border-color .2s;
-        }
+        .room-avatar { width: 34px; height: 34px; border-radius: 9px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; transition: border-color .2s; }
         .room-item.active .room-avatar { border-color: var(--accent); }
+        .room-name { font-size: 13.5px; font-weight: 500; }
+        .room-item.active::before { content: ''; position: absolute; right: 0; top: 50%; transform: translateY(-50%); width: 3px; height: 60%; background: var(--accent); border-radius: 2px 0 0 2px; }
+        .empty-rooms { padding: 20px 16px; text-align: center; color: var(--text-faint); font-size: 13px; line-height: 1.8; }
+        .user-bar { padding: 10px 14px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+        .user-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--accent-glow); border: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+        .user-name { font-size: 13px; font-weight: 500; flex: 1; }
 
-        .room-name {
-          font-size: 14px;
-          font-weight: 500;
-          color: var(--text);
-        }
-
-        .room-item.active::before {
-          content: '';
-          position: absolute;
-          right: 0; top: 50%;
-          transform: translateY(-50%);
-          width: 3px; height: 60%;
-          background: var(--accent);
-          border-radius: 2px 0 0 2px;
-        }
-
-        .empty-rooms {
-          padding: 20px 16px;
-          text-align: center;
-          color: var(--text-faint);
-          font-size: 13px;
-          line-height: 1.7;
-        }
-
-        /* ─── Main Chat ─── */
-        #main {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          height: 100vh;
-        }
-
-        /* Placeholder when no room selected */
-        #placeholder {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 12px;
-          color: var(--text-muted);
-        }
-        #placeholder svg { opacity: 0.15; }
+        /* ─── Main ─── */
+        #main { flex: 1; display: flex; flex-direction: column; height: 100vh; }
+        #placeholder { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+        #placeholder svg { opacity: 0.1; }
         #placeholder p { font-size: 14px; color: var(--text-faint); }
-
-        /* Chat panel */
-        #chat-panel {
-          display: none;
-          flex-direction: column;
-          height: 100vh;
-        }
-
-        .chat-header {
-          padding: 16px 20px;
-          border-bottom: 1px solid var(--border);
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          background: var(--surface);
-          flex-shrink: 0;
-        }
-
-        .chat-room-avatar {
-          width: 38px; height: 38px;
-          border-radius: 10px;
-          background: var(--accent-glow);
-          border: 1px solid var(--accent);
-          display: flex; align-items: center; justify-content: center;
-          font-size: 17px;
-        }
-
-        .chat-room-name {
-          font-size: 15px;
-          font-weight: 600;
-        }
-        .chat-room-sub {
-          font-size: 11px;
-          color: var(--text-muted);
-          margin-top: 1px;
-        }
-
-        /* Messages */
-        #messages {
-          flex: 1;
-          overflow-y: auto;
-          padding: 20px 16px;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
+        #chat-panel { display: none; flex-direction: column; height: 100vh; }
+        .chat-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; background: var(--surface); flex-shrink: 0; }
+        .chat-room-avatar { width: 36px; height: 36px; border-radius: 9px; background: var(--accent-glow); border: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .chat-room-name { font-size: 14px; font-weight: 600; }
+        .chat-room-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+        #messages { flex: 1; overflow-y: auto; padding: 18px 16px; display: flex; flex-direction: column; gap: 8px; }
         #messages::-webkit-scrollbar { width: 3px; }
         #messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
-        .msg-wrap {
-          display: flex;
-          flex-direction: column;
-          max-width: 68%;
-          animation: fadeUp .2s ease;
-        }
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(8px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-
+        .msg-wrap { display: flex; flex-direction: column; max-width: 68%; animation: fadeUp .2s ease; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .msg-wrap.me { align-self: flex-start; }
         .msg-wrap.other { align-self: flex-end; }
-
-        .msg-sender {
-          font-size: 10px;
-          color: var(--text-muted);
-          margin-bottom: 3px;
-          padding: 0 4px;
-        }
+        .msg-sender { font-size: 10px; color: var(--text-muted); margin-bottom: 3px; padding: 0 4px; }
         .msg-wrap.me .msg-sender { text-align: right; }
-
-        .msg-bubble {
-          padding: 9px 13px;
-          border-radius: 12px;
-          font-size: 13.5px;
-          line-height: 1.55;
-          word-break: break-word;
-        }
-        .msg-wrap.me .msg-bubble {
-          background: var(--accent);
-          color: #fff;
-          border-bottom-right-radius: 4px;
-        }
-        .msg-wrap.other .msg-bubble {
-          background: var(--surface2);
-          color: var(--text);
-          border: 1px solid var(--border);
-          border-bottom-left-radius: 4px;
-        }
-
-        .msg-time {
-          font-size: 10px;
-          color: var(--text-faint);
-          margin-top: 3px;
-          padding: 0 4px;
-        }
+        .msg-bubble { padding: 9px 13px; border-radius: 12px; font-size: 13.5px; line-height: 1.55; word-break: break-word; }
+        .msg-wrap.me .msg-bubble { background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+        .msg-wrap.other .msg-bubble { background: var(--surface2); color: var(--text); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+        .msg-time { font-size: 10px; color: var(--text-faint); margin-top: 3px; padding: 0 4px; }
         .msg-wrap.other .msg-time { text-align: left; }
-
-        /* Input Bar */
-        .input-bar {
-          padding: 14px 16px;
-          border-top: 1px solid var(--border);
-          display: flex;
-          gap: 10px;
-          align-items: center;
-          background: var(--surface);
-          flex-shrink: 0;
-        }
-
-        .msg-input {
-          flex: 1;
-          background: var(--surface2);
-          border: 1px solid var(--border);
-          border-radius: 22px;
-          padding: 10px 16px;
-          font-size: 13.5px;
-          font-family: inherit;
-          color: var(--text);
-          outline: none;
-          transition: border-color .2s;
-          resize: none;
-          direction: rtl;
-        }
+        .input-bar { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: center; background: var(--surface); flex-shrink: 0; }
+        .msg-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; padding: 10px 16px; font-size: 13.5px; font-family: inherit; color: var(--text); outline: none; transition: border-color .2s; direction: rtl; }
         .msg-input:focus { border-color: var(--accent); }
         .msg-input::placeholder { color: var(--text-faint); }
-
-        .btn-send {
-          background: var(--accent);
-          border: none;
-          border-radius: 50%;
-          width: 42px; height: 42px;
-          cursor: pointer;
-          display: flex; align-items: center; justify-content: center;
-          flex-shrink: 0;
-          transition: background .2s, transform .15s, box-shadow .2s;
-        }
-        .btn-send:hover { background: var(--accent-dim); box-shadow: 0 0 14px var(--accent-glow); }
+        .btn-send { background: var(--accent); border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .2s, transform .15s; }
+        .btn-send:hover { background: var(--accent-dim); }
         .btn-send:active { transform: scale(0.9); }
-        .btn-send svg { width: 18px; height: 18px; stroke: #fff; }
-
-        /* Toast */
-        #toast {
-          position: fixed;
-          bottom: 24px;
-          left: 50%;
-          transform: translateX(-50%) translateY(20px);
-          background: var(--surface2);
-          border: 1px solid var(--border);
-          border-radius: 22px;
-          padding: 8px 18px;
-          font-size: 12.5px;
-          color: var(--text-muted);
-          opacity: 0;
-          transition: all .3s;
-          pointer-events: none;
-          white-space: nowrap;
-        }
-        #toast.show {
-          opacity: 1;
-          transform: translateX(-50%) translateY(0);
-        }
+        .btn-send svg { width: 17px; height: 17px; stroke: #fff; }
+        #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface2); border: 1px solid var(--border); border-radius: 22px; padding: 8px 18px; font-size: 12.5px; color: var(--text-muted); opacity: 0; transition: all .3s; pointer-events: none; white-space: nowrap; }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     </style>
 </head>
 <body>
 
+<!-- ─── Auth Screen ─── -->
+<div id="auth-screen">
+    <div class="auth-card">
+        <div class="auth-title">💬 Chat Rooms</div>
+        <div class="auth-sub" id="auth-sub">أهلاً! سجّل دخولك للمتابعة</div>
+        <input class="auth-input" id="auth-username" placeholder="اسم المستخدم" onkeydown="if(event.key==='Enter') submitAuth()">
+        <input class="auth-input" id="auth-password" type="password" placeholder="كلمة المرور" onkeydown="if(event.key==='Enter') submitAuth()">
+        <div id="auth-error"></div>
+        <button class="auth-btn" onclick="submitAuth()" id="auth-btn">دخول</button>
+        <div class="auth-toggle" id="auth-toggle">
+            ما عندك حساب؟ <span onclick="toggleMode()">سجّل الآن</span>
+        </div>
+    </div>
+</div>
+
 <!-- ─── Sidebar ─── -->
 <div id="sidebar">
     <div class="sidebar-header">
-        <div class="app-title">💬 Chat Rooms</div>
-        <div id="status-badge">
-            <div class="status-dot" id="dot"></div>
-            <span id="status-text">جاري الاتصال...</span>
+        <div>
+            <div class="app-title">💬 Chat Rooms</div>
+            <div id="status-badge">
+                <div class="status-dot" id="dot"></div>
+                <span id="status-text">جاري الاتصال...</span>
+            </div>
         </div>
+        <button class="btn-logout" onclick="logout()">خروج ↩</button>
     </div>
 
     <div class="create-box">
-        <input id="roomName" placeholder="اسم الغرفة الجديدة..." onkeydown="if(event.key==='Enter') createRoom()">
-        <button class="btn-create" onclick="createRoom()" title="إنشاء غرفة">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <input id="roomName" placeholder="اسم غرفة جديدة..." onkeydown="if(event.key==='Enter') createRoom()">
+        <button class="btn-create" onclick="createRoom()">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
         </button>
     </div>
 
     <div class="rooms-label">الغرف</div>
     <div id="rooms-list">
         <div class="empty-rooms">لا توجد غرف بعد<br>أنشئ واحدة ☝️</div>
+    </div>
+
+    <div class="user-bar">
+        <div class="user-avatar">👤</div>
+        <div class="user-name" id="user-name-display">—</div>
     </div>
 </div>
 
@@ -405,9 +166,7 @@
                 <div class="chat-room-sub">غرفة دردشة عامة</div>
             </div>
         </div>
-
         <div id="messages"></div>
-
         <div class="input-bar">
             <button class="btn-send" onclick="sendMessage()">
                 <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -425,79 +184,179 @@
 <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 <script>
-    const MY_NAME = "Amjad"; // ← غيّر اسمك هون
-
+    let token  = localStorage.getItem('jwt_token');
+    let myName = localStorage.getItem('username');
+    let isRegisterMode = false;
     let stompClient = null;
     let currentRoomId = null;
     let currentSubscription = null;
-
     const emojis = ["💬","🔥","🎯","🚀","⚡","🌟","🎮","🎨","🌙","🌈"];
-    function roomEmoji(id) { return emojis[id % emojis.length]; }
 
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 2500);
+    // ── Init: لو في token — أخفي الـ auth screen وابدأ ──
+    if (token && myName) {
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('user-name-display').textContent = myName;
+      connect();
     }
 
-    // ── اتصال ──
+    // ── تبديل بين Login و Register ──
+    function toggleMode() {
+      isRegisterMode = !isRegisterMode;
+      document.getElementById('auth-btn').textContent  = isRegisterMode ? 'إنشاء حساب' : 'دخول';
+      document.getElementById('auth-sub').textContent  = isRegisterMode ? 'أنشئ حساباً جديداً' : 'أهلاً! سجّل دخولك للمتابعة';
+      document.getElementById('auth-toggle').innerHTML = isRegisterMode
+        ? 'عندك حساب؟ <span onclick="toggleMode()">سجّل دخول</span>'
+        : 'ما عندك حساب؟ <span onclick="toggleMode()">سجّل الآن</span>';
+      document.getElementById('auth-error').textContent = '';
+    }
+
+    // ── تسجيل / دخول ──
+    async function submitAuth() {
+      const username = document.getElementById('auth-username').value.trim();
+      const password = document.getElementById('auth-password').value.trim();
+      const errEl    = document.getElementById('auth-error');
+      errEl.style.color = '#f87171';
+
+      if (!username || !password) { errEl.textContent = 'يرجى تعبئة جميع الحقول'; return; }
+
+      const url = isRegisterMode ? '/register' : '/login';
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userName: username, password })
+        });
+
+        if (!res.ok) {
+          errEl.textContent = isRegisterMode ? 'اسم المستخدم مستخدم مسبقاً' : 'اسم المستخدم أو كلمة المرور غلط';
+          return;
+        }
+
+        if (isRegisterMode) {
+          // بعد التسجيل الناجح — اطلب منه يسجل دخول
+          toggleMode();
+          errEl.style.color = '#3dd68c';
+          errEl.textContent = 'تم إنشاء الحساب ✔ سجّل دخولك الآن';
+          return;
+        }
+
+        // Login ناجح — الـ response هو الـ JWT token مباشرة
+        const jwt = await res.text();
+        localStorage.setItem('jwt_token', jwt);
+        localStorage.setItem('username', username);
+        token  = jwt;
+        myName = username;
+
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('user-name-display').textContent = myName;
+        connect();
+
+      } catch (e) {
+        errEl.textContent = 'خطأ في الاتصال بالسيرفر';
+      }
+    }
+
+    // ── خروج ──
+    function logout() {
+      localStorage.removeItem('jwt_token');
+      localStorage.removeItem('username');
+      location.reload();
+    }
+
+    // ── fetch مع JWT token ──
+    function authFetch(url, options = {}) {
+      return fetch(url, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token,
+          ...(options.headers || {})
+        }
+      });
+    }
+
+    // ── اتصال WebSocket ──
     function connect() {
       const socket = new SockJS('/ws');
-      stompClient = Stomp.over(socket);
+      stompClient  = Stomp.over(socket);
       stompClient.debug = null;
 
-      stompClient.connect({}, function () {
-        document.getElementById('dot').classList.add('connected');
-        document.getElementById('status-text').textContent = 'متصل ✔';
-        loadRooms();
-      }, function () {
-        document.getElementById('status-text').textContent = 'فشل الاتصال ❌';
-      });
+      stompClient.connect(
+        { 'Authorization': 'Bearer ' + token },
+        function () {
+          document.getElementById('dot').classList.add('connected');
+          document.getElementById('status-text').textContent = 'متصل ✔';
+          loadRooms();
+        },
+        function () {
+          document.getElementById('status-text').textContent = 'فشل الاتصال ❌';
+        }
+      );
     }
 
     // ── جلب الغرف ──
     async function loadRooms() {
       try {
-        const res = await fetch('/api/rooms');
+        const res   = await authFetch('/api/rooms');
         const rooms = await res.json();
         renderRooms(rooms);
-      } catch(e) {
-        console.error("Error loading rooms:", e);
-      }
+      } catch (e) { console.error('loadRooms error:', e); }
     }
 
-    function renderRooms(rooms) {
-      const list = document.getElementById('rooms-list');
-      if (!rooms.length) {
+function renderRooms(rooms) {
+    const list = document.getElementById('rooms-list');
+    if (!rooms.length) {
         list.innerHTML = '<div class="empty-rooms">لا توجد غرف بعد<br>أنشئ واحدة ☝️</div>';
         return;
-      }
-      list.innerHTML = '';
-      rooms.forEach(r => {
+    }
+    list.innerHTML = '';
+    rooms.forEach(r => {
         const div = document.createElement('div');
         div.className = 'room-item' + (r.id == currentRoomId ? ' active' : '');
-        div.innerHTML = `
-          <div class="room-avatar">${roomEmoji(r.id)}</div>
-          <div class="room-name">${r.name}</div>
-        `;
-        div.onclick = () => joinRoom(r.id, r.name);
+
+        if (r.member) {
+            // ✔ عضو — يقدر يدخل
+            div.innerHTML = `
+                <div class="room-avatar">${emojis[r.id % emojis.length]}</div>
+                <div class="room-name">${r.name}</div>`;
+            div.onclick = () => joinRoom(r.id, r.name);
+        } else {
+            // 🔒 مش عضو
+            div.style.opacity = '0.6';
+            div.innerHTML = `
+                <div class="room-avatar">🔒</div>
+                <div style="flex:1">
+                    <div class="room-name">${r.name}</div>
+                    <div style="font-size:11px;color:var(--text-faint)">غير منضم</div>
+                </div>
+                <button onclick="requestJoin(event,${r.id})"
+                    style="font-size:11px;padding:3px 10px;background:var(--accent);
+                           border:none;border-radius:6px;color:#fff;cursor:pointer;font-family:inherit">
+                    Join
+                </button>`;
+        }
         list.appendChild(div);
-      });
+    });
+}
+
+async function requestJoin(event, roomId) {
+    event.stopPropagation();
+    const res = await authFetch(`/api/rooms/${roomId}/join`, { method: 'POST' });
+    if (res.ok) {
+        showToast('انضممت للغرفة ✔');
+        await loadRooms();
+    } else {
+        showToast('خطأ في الانضمام');
     }
+}
 
     // ── إنشاء غرفة ──
     async function createRoom() {
       const input = document.getElementById('roomName');
-      const name = input.value.trim();
+      const name  = input.value.trim();
       if (!name) return;
-
-      const res = await fetch(`/api/rooms?name=${encodeURIComponent(name)}`, { method: 'POST' });
-      if (!res.ok) {
-        const err = await res.text();
-        showToast('خطأ: ' + err);
-        return;
-      }
+      const res = await authFetch(`/api/rooms?name=${encodeURIComponent(name)}`, { method: 'POST' });
+      if (!res.ok) { showToast('الغرفة موجودة مسبقاً!'); return; }
       input.value = '';
       await loadRooms();
       showToast('تم إنشاء الغرفة ✔');
@@ -506,29 +365,21 @@
     // ── الانضمام لغرفة ──
     async function joinRoom(roomId, roomName) {
       if (currentSubscription) currentSubscription.unsubscribe();
-
       currentRoomId = roomId;
+      await loadRooms();
 
-      // تحديث الـ sidebar
-      document.querySelectorAll('.room-item').forEach(el => el.classList.remove('active'));
-      event?.currentTarget?.classList.add('active');
-      await loadRooms(); // يعيد رسم مع active
-
-      // إظهار الـ chat
       document.getElementById('placeholder').style.display = 'none';
-      const panel = document.getElementById('chat-panel');
-      panel.style.display = 'flex';
+      document.getElementById('chat-panel').style.display  = 'flex';
       document.getElementById('chat-room-name').textContent = roomName;
-      document.getElementById('chat-avatar').textContent = roomEmoji(roomId);
-      document.getElementById('messages').innerHTML = '';
+      document.getElementById('chat-avatar').textContent    = emojis[roomId % emojis.length];
+      document.getElementById('messages').innerHTML         = '';
+      document.getElementById('msg').focus();
 
-      // الاشتراك
-      currentSubscription = stompClient.subscribe(`/topic/room/${roomId}`, function(message) {
-        addMessage(JSON.parse(message.body));
+      currentSubscription = stompClient.subscribe(`/topic/room/${roomId}`, msg => {
+        addMessage(JSON.parse(msg.body));
       });
 
-      // تاريخ الرسائل
-      const res = await fetch(`/api/rooms/${roomId}/messages`);
+      const res     = await authFetch(`/api/rooms/${roomId}/messages`);
       const history = await res.json();
       history.forEach(addMessage);
       scrollBottom();
@@ -537,31 +388,26 @@
     // ── إرسال رسالة ──
     function sendMessage() {
       const input = document.getElementById('msg');
-      const text = input.value.trim();
+      const text  = input.value.trim();
       if (!text || !currentRoomId) return;
-
       stompClient.send(`/app/room/${currentRoomId}/send`, {}, JSON.stringify({
-        sender: MY_NAME,
-        content: text
+        sender: myName, content: text
       }));
       input.value = '';
     }
 
     // ── عرض رسالة ──
     function addMessage(msg) {
-      const isMe = msg.sender === MY_NAME;
+      const isMe = msg.sender === myName;
       const wrap = document.createElement('div');
       wrap.className = `msg-wrap ${isMe ? 'me' : 'other'}`;
-
       const time = msg.timestamp
-        ? new Date(msg.timestamp).toLocaleTimeString('ar', {hour:'2-digit', minute:'2-digit'})
-        : new Date().toLocaleTimeString('ar', {hour:'2-digit', minute:'2-digit'});
-
+        ? new Date(msg.timestamp).toLocaleTimeString('ar', { hour: '2-digit', minute: '2-digit' })
+        : new Date().toLocaleTimeString('ar', { hour: '2-digit', minute: '2-digit' });
       wrap.innerHTML = `
         ${!isMe ? `<div class="msg-sender">${msg.sender}</div>` : ''}
         <div class="msg-bubble">${msg.content}</div>
-        <div class="msg-time">${time}</div>
-      `;
+        <div class="msg-time">${time}</div>`;
       document.getElementById('messages').appendChild(wrap);
       scrollBottom();
     }
@@ -571,7 +417,12 @@
       m.scrollTop = m.scrollHeight;
     }
 
-    connect();
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
 </script>
 </body>
 </html>

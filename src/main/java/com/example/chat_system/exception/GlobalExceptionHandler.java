@@ -13,7 +13,7 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(RoomNotFoundException.class)
     public ResponseEntity<String> handleRoomNotFound(RoomNotFoundException ex){
-        return ResponseEntity.status(4040).body(ex.getMessage());
+        return ResponseEntity.status(404).body(ex.getMessage());
     }
 
 }
