@@ -15,6 +15,6 @@ public class ChatRoomDTO {
     private String name;
     private LocalDateTime createdAt;
     private boolean isMember;
-
+    private int membersCount;
 
 }

@@ -1,5 +1,7 @@
-package com.example.chat_system.service;
+package com.example.chat_system.validations;
 
+import com.example.chat_system.service.CustomUserDetailsService;
+import com.example.chat_system.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;

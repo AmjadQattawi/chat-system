@@ -3,6 +3,7 @@ package com.example.chat_system.controller;
 import com.example.chat_system.dto.ChatMessageDTO;
 import com.example.chat_system.dto.ChatRoomDTO;
 import com.example.chat_system.service.ChatRoomService;
+import com.example.chat_system.service.UserStatusService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatRoomController {
 
+    private final UserStatusService userStatusService;
     private final ChatRoomService chatRoomService;
     @PostMapping
     //@PreAuthorize("hasRole('ADMIN')")
@@ -45,5 +47,9 @@ public class ChatRoomController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/online-users")
+    public ResponseEntity<java.util.Set<String>> getOnlineUsers() {
+        return ResponseEntity.ok(userStatusService.getOnlineUsers());
+    }
 
 }

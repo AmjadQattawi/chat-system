@@ -1,7 +1,7 @@
 package com.example.chat_system.configration;
 
 
-import com.example.chat_system.service.WebSocketAuthChannelInterceptor;
+import com.example.chat_system.validations.WebSocketAuthChannelInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
