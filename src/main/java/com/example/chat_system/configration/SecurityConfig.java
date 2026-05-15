@@ -5,11 +5,13 @@ import com.example.chat_system.enums.Role;
 import com.example.chat_system.repository.UserRepository;
 import com.example.chat_system.securityValidation.JwtAuthenticationFilter;
 import com.example.chat_system.service.CustomUserDetailsService;
+import com.example.chat_system.service.WebSocketAuthChannelInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -26,19 +28,24 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
-public class SecurityConfig {
+public class SecurityConfig  {
 
     private final UserRepository userRepository;
     private final JwtAuthenticationFilter jwtAuthFilter;
+
     @Value("${app.admin.username}")
     private String adminUser;
     @Value("${app.admin.password}")
     private String adminPass;
+
+
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -68,7 +75,7 @@ public class SecurityConfig {
     @Bean
     CommandLineRunner initAdmin() {
         return args -> {
-            if (userRepository.findByUserName("admin").isEmpty()) {
+            if (userRepository.findByUserName(adminUser).isEmpty()) {
                 User admin = new User();
                 admin.setUserName(adminUser);
                 admin.setPassword(passwordEncoder().encode(adminPass));

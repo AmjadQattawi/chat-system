@@ -1,6 +1,7 @@
 package com.example.chat_system.controller;
 
 import com.example.chat_system.dto.ChatMessageDTO;
+import com.example.chat_system.dto.TypingEventDTO;
 import com.example.chat_system.entity.ChatRoom;
 import com.example.chat_system.repository.ChatRoomRepository;
 import com.example.chat_system.service.ChatMessageService;
@@ -41,6 +42,16 @@ public class ChatController {
         messagingTemplate.convertAndSend("/topic/room/" + roomId, saved);
     }
 
+    @MessageMapping("/rooms/{roomId}/typing")
+    public void handleTyping(@DestinationVariable Long roomId,
+                             TypingEventDTO event,
+                             Principal principal) {
+        event.setSender(principal.getName());
+        messagingTemplate.convertAndSend(
+                "/topic/rooms/" + roomId + "/typing", event
+        );
+
+    }
 
 
 }

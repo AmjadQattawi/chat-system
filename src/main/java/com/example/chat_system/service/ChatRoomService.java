@@ -2,7 +2,6 @@ package com.example.chat_system.service;
 
 import com.example.chat_system.dto.ChatMessageDTO;
 import com.example.chat_system.dto.ChatRoomDTO;
-import com.example.chat_system.entity.ChatMessage;
 import com.example.chat_system.entity.ChatRoom;
 import com.example.chat_system.entity.User;
 import com.example.chat_system.exception.DuplicateResourceException;
@@ -13,13 +12,9 @@ import com.example.chat_system.repository.ChatMessageRepository;
 import com.example.chat_system.repository.ChatRoomRepository;
 import com.example.chat_system.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -59,10 +54,18 @@ public class ChatRoomService {
                 .toList();
     }
 
-    public List<ChatMessageDTO> getRoomHistory(Long roomId){
-        List<ChatMessage> chatMessages=chatMessageRepository.findByRoomIdOrderByTimestampAsc(roomId);
-        return chatMapper.toDTO(chatMessages);
+    public List<ChatMessageDTO> getRoomHistory(Long roomId) {
+        ChatRoom room = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new RoomNotFoundException("Room not found!"));
 
+        boolean isMember = room.getMembers().stream()
+                .anyMatch(u -> u.getUserName().equals(getCurrentUsername()));
+
+        if (!isMember) throw new RuntimeException("Access denied!");
+
+        return chatMapper.toDTO(
+                chatMessageRepository.findByRoomIdOrderByTimestampAsc(roomId)
+        );
     }
 
     public void joinRoom(Long roomId) {
@@ -81,6 +84,12 @@ public class ChatRoomService {
     }
     private String getCurrentUsername() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
+    public void delete(Long id){
+        ChatRoom room = chatRoomRepository.findById(id)
+                .orElseThrow(() -> new RoomNotFoundException("Room not found!"));
+        chatRoomRepository.delete(room);
     }
 
 

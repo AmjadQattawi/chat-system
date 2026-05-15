@@ -15,20 +15,18 @@ import java.util.List;
 public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
-    @PostMapping("/createRoom")
+    @PostMapping
     //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ChatRoomDTO> createRoom(@RequestParam String name) {
         return ResponseEntity.ok(chatRoomService.createRoom(name));
     }
 
-    @GetMapping("/getAllRooms")
-    //@PreAuthorize("hasRole('ADMIN')")
+    @GetMapping
     public ResponseEntity<List<ChatRoomDTO>> getAllRooms() {
         return ResponseEntity.ok(chatRoomService.getAllRooms());
     }
 
     @GetMapping("/{roomId}/messages")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<ChatMessageDTO>> getRoomHistory(@PathVariable Long roomId) {
         return ResponseEntity.ok(chatRoomService.getRoomHistory(roomId));
     }
@@ -40,6 +38,12 @@ public class ChatRoomController {
         return ResponseEntity.ok("Joined successfully!");
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id){
+        chatRoomService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 
 
 }
