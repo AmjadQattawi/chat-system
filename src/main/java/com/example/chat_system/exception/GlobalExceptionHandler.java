@@ -15,5 +15,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleRoomNotFound(RoomNotFoundException ex){
         return ResponseEntity.status(404).body(ex.getMessage());
     }
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleRuntime(RuntimeException ex) {
+        if (ex.getMessage() != null && ex.getMessage().equals("Access denied!"))
+            return ResponseEntity.status(403).body(ex.getMessage());
+        return ResponseEntity.status(500).body("Internal server error");
+    }
 
 }

@@ -11,6 +11,7 @@ import com.example.chat_system.mapper.ChatRoomMapper;
 import com.example.chat_system.repository.ChatMessageRepository;
 import com.example.chat_system.repository.ChatRoomRepository;
 import com.example.chat_system.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class ChatRoomService {
     private final ChatMapper chatMapper;
     private final UserRepository userRepository;
 
+    @Transactional
     public ChatRoomDTO createRoom(String name){
         if (chatRoomRepository.existsByName(name)) {
             throw new DuplicateResourceException("Room '" + name + "' already exists!");
@@ -43,7 +45,7 @@ public class ChatRoomService {
 
     public List<ChatRoomDTO> getAllRooms() {
         String currentUser = getCurrentUsername();
-        return chatRoomRepository.findAll()
+        return chatRoomRepository.findAllWithMembers()
                 .stream()
                 .map(room -> {
                     ChatRoomDTO dto = chatRoomMapper.toDTO(room);
@@ -68,6 +70,7 @@ public class ChatRoomService {
         );
     }
 
+    @Transactional
     public void joinRoom(Long roomId) {
         ChatRoom room = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new RoomNotFoundException("Room not found!"));

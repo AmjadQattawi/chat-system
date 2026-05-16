@@ -3,6 +3,7 @@ package com.example.chat_system.service;
 import com.example.chat_system.dto.UserDTO;
 import com.example.chat_system.entity.User;
 import com.example.chat_system.enums.Role;
+import com.example.chat_system.exception.DuplicateResourceException;
 import com.example.chat_system.mapper.UserMapper;
 import com.example.chat_system.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,9 @@ public class UserService {
     private final CustomUserDetailsService userDetailsService;
 
     public UserDTO register(UserDTO userDTO) {
+        if (userRepository.findByUserName(userDTO.getUserName()).isPresent()) {
+            throw new DuplicateResourceException("Username already exists!");
+        }
         User user = userMapper.toEntity(userDTO);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(Role.USER);
